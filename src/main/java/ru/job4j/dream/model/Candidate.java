@@ -8,6 +8,7 @@ public class Candidate {
     private String name;
     private String description;
     private Date created;
+    private boolean hasPhoto;
 
     public Candidate(int id, String name, String description, Date created) {
         this.id = id;
@@ -47,6 +48,15 @@ public class Candidate {
     public void setCreated(Date created) {
         this.created = created;
     }
+
+    public boolean isHasPhoto() {
+        return hasPhoto;
+    }
+
+    public void setHasPhoto(boolean value) {
+        this.hasPhoto = value;
+    }
+
 
     @Override
     public boolean equals(Object o) {

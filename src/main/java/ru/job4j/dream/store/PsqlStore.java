@@ -4,7 +4,10 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import ru.job4j.dream.model.Candidate;
 import ru.job4j.dream.model.Post;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.sql.*;
 import java.time.ZoneId;
@@ -15,6 +18,7 @@ import java.util.Properties;
 
 public class PsqlStore implements Store {
     private final BasicDataSource pool = new BasicDataSource();
+    private static final Logger LOG = LogManager.getLogger(PsqlStore.class.getName());
 
     private PsqlStore() {
         Properties cfg = new Properties();
@@ -60,7 +64,7 @@ public class PsqlStore implements Store {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return posts;
     }
@@ -73,17 +77,19 @@ public class PsqlStore implements Store {
         ) {
             try (ResultSet it = ps.executeQuery()) {
                 while (it.next()) {
-                    candidates.add(new Candidate(it.getInt("id"), it.getString("name"),
-                            it.getString("description"), it.getTimestamp("created")));
+                    Candidate candidate = new Candidate(it.getInt("id"), it.getString("name"),
+                            it.getString("description"), it.getTimestamp("created"));
+                    File photo = new File("c:\\images\\" + candidate.getId() + ".JPG");
+                    candidate.setHasPhoto(photo.exists());
+                    candidates.add(candidate);
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return candidates;
     }
 
-//    @Override
     public void save(Post post) {
         if (post.getId() == 0) {
             create(post);
@@ -118,7 +124,7 @@ public class PsqlStore implements Store {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return post;
     }
@@ -140,7 +146,7 @@ public class PsqlStore implements Store {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return can;
     }
@@ -157,7 +163,7 @@ public class PsqlStore implements Store {
             ps.setInt(4, post.getId());
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
     }
 
@@ -173,12 +179,12 @@ public class PsqlStore implements Store {
             ps.setInt(4, can.getId());
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
     }
 
     @Override
-    public Post findById(int id) {
+    public Post findByIdPost(int id) {
         Post post = null;
         try (Connection cn = pool.getConnection();
              PreparedStatement ps = cn.prepareStatement("SELECT * from post where id=?")
@@ -191,8 +197,37 @@ public class PsqlStore implements Store {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return post;
+    }
+
+    public Candidate findByIdCandidate(int id) {
+        Candidate can = null;
+        try (Connection cn = pool.getConnection();
+             PreparedStatement ps = cn.prepareStatement("SELECT * from candidate where id=?")
+        ) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    can = new Candidate(rs.getInt("id"), rs.getString("name"),
+                            rs.getString("description"), rs.getTimestamp("created"));
+                }
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return can;
+    }
+
+    public void deleteCandidate(int id) {
+        try (Connection cn = pool.getConnection();
+             PreparedStatement ps = cn.prepareStatement("DELETE from candidate where id=?")
+        ) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
     }
 }

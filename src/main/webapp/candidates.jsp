@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@ page import="ru.job4j.dream.store.MemStore" %>
 <%@ page import="ru.job4j.dream.model.Candidate" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core" %>
 
@@ -25,34 +24,47 @@
 </head>
 <body>
 <div class="container pt-3">
-
     <div class="row">
-        <div class="card" style="width: 90%">
+        <div class="card" style="width: 100%">
             <div class="card-header">
                 Кандидаты
             </div>
             <div class="card-body">
                 <table class="table">
                     <thead>
-                    <tr>
-                        <th scope="col">id</th>
-                        <th scope="col">name</th>
-                        <th scope="col">description</th>
-                        <th scope="col">date</th>
-                    </tr>
+                        <tr>
+                            <th scope="col">id</th>
+                            <th scope="col">name</th>
+                            <th scope="col">description</th>
+                            <th scope="col">date</th>
+                            <th scope="col">photo</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <c:forEach items="${candidates}" var="can">
+                        <jsp:useBean id="candidates" scope="request" type="java.util.List"/>
+                        <c:forEach items="${candidates}" var="can">
                         <tr>
                             <td>
+                                <c:out value="${can.id}"/>
                                 <a href='<c:url value="/candidate/edit.jsp?id=${can.id}"/>'>
                                     <i class="fa fa-edit mr-3"></i>
                                 </a>
-                                <c:out value="${can.id}"/>
+                                <form action='<c:url value="/candidates.do?action=delete&id=${can.id}"/>' method="post">
+                                    <button type="submit" class="btn btn-primary">Delete</button>
+                                </form>
                             </td>
                             <td><c:out value="${can.name}"/></td>
                             <td><c:out value="${can.description}"/></td>
                             <td><c:out value="${can.created}"/> </td>
+                            <td>
+                                <c:if test="${!can.hasPhoto}">
+                                    <a href="<c:url value='/upload.jsp?name=${can.id}.JPG'/>">Upload</a>
+                                </c:if>
+                                <c:if test="${can.hasPhoto}">
+                                    <a href="<c:url value='/download?name=${can.id}.JPG'/>">Download</a>
+                                    <img src="<c:url value='/download?name=${can.id}.JPG'/>" width="120px" height="90px"/>
+                                </c:if>
+                            </td>
                         </tr>
                     </c:forEach>
                     </tbody>
