@@ -11,7 +11,20 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 </head>
 <body>
-
+<div class="container">
+        <ul class="nav">
+            <c:if test="${user.name == null}">
+                <li class="nav-item">
+                    <a class="nav-link" href="<%=request.getContextPath()%>/login.jsp">Войти</a>
+                </li>
+            </c:if>
+            <c:if test="${user.name != null}">
+                <li class="nav-item">
+                    <a class="nav-link" href="<%=request.getContextPath()%>/login.jsp"> <c:out value="${user.name}"/> | Выйти</a>
+                </li>
+            </c:if>
+        </ul>
+</div>
 <div class="container">
     <h2>Upload image</h2>
     <%
@@ -24,6 +37,5 @@
         <button type="submit" class="btn btn-default">Submit</button>
     </form>
 </div>
-
 </body>
 </html>
