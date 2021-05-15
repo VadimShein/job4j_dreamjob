@@ -6,6 +6,8 @@ import ru.job4j.dream.model.Post;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import ru.job4j.dream.model.User;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -229,5 +231,38 @@ public class PsqlStore implements Store {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void createUser(User user) {
+        try (Connection cn = pool.getConnection();
+             PreparedStatement ps =  cn.prepareStatement(
+                     "INSERT INTO users(name, email, password) VALUES (?, ?, ?)")) {
+            ps.setString(1, user.getName());
+            ps.setString(2, user.getEmail());
+            ps.setString(3, user.getPassword());
+            ps.execute();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public User findByEmailUser(String email) {
+        User user = null;
+        try (Connection cn = pool.getConnection();
+             PreparedStatement ps = cn.prepareStatement("SELECT * from users where email=?")
+        ) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    user = new User(rs.getInt("id"), rs.getString("name"),
+                            rs.getString("email"), rs.getString("password"));
+                }
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return user;
     }
 }
