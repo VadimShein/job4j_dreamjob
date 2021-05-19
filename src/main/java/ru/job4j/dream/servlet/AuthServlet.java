@@ -17,7 +17,7 @@ public class AuthServlet extends HttpServlet {
         String password = req.getParameter("password");
 
         User currentUser = PsqlStore.instOf().findByEmailUser(email);
-        if (currentUser.getEmail().equals(email) & currentUser.getPassword().equals(password)) {
+        if (currentUser != null && currentUser.getPassword().equals(password)) {
             HttpSession sc = req.getSession();
             User user = new User();
             user.setName(currentUser.getName());

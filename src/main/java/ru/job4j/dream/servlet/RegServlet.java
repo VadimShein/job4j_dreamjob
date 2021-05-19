@@ -16,7 +16,8 @@ public class RegServlet  extends HttpServlet {
         String name = req.getParameter("name");
         String email = req.getParameter("email");
         String password = req.getParameter("password");
-        if (!name.isEmpty() & !email.isEmpty() & !password.isEmpty()) {
+        User findUser =  PsqlStore.instOf().findByEmailUser(email);
+        if (findUser == null) {
             HttpSession sc = req.getSession();
             User user = new User();
             user.setName(name);
@@ -26,7 +27,7 @@ public class RegServlet  extends HttpServlet {
             PsqlStore.instOf().createUser(user);
             resp.sendRedirect(req.getContextPath() + "/login.jsp");
         } else {
-            req.setAttribute("error", "Одно или несколько полей пустые");
+            req.setAttribute("error", "email уже был использован");
             req.getRequestDispatcher("reg.jsp").forward(req, resp);
         }
     }
