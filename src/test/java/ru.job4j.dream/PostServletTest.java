@@ -2,6 +2,7 @@ package ru.job4j.dream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -19,15 +20,14 @@ import java.io.IOException;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(PsqlStore.class)
 public class PostServletTest {
     @Test
-    public void whenAddUserPostServletDoPost() throws ServletException, IOException {
+    public void whenPostServletDoPost() throws ServletException, IOException {
         PowerMockito.mockStatic(PsqlStore.class);
         when(PsqlStore.instOf()).thenReturn(MemStore.instOf());
         HttpServletRequest req = mock(HttpServletRequest.class);
@@ -40,7 +40,7 @@ public class PostServletTest {
     }
 
     @Test
-    public void whenDoGet() throws ServletException, IOException {
+    public void whenPostServletDoGet() throws ServletException, IOException {
         PowerMockito.mockStatic(PsqlStore.class);
         when(PsqlStore.instOf()).thenReturn(MemStore.instOf());
 
@@ -54,6 +54,6 @@ public class PostServletTest {
         when(req.getParameter("user")).thenReturn("user");
         when(req.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
         new PostServlet().doGet(req, resp);
-        assertThat(MemStore.instOf().findAllPosts().size(), is(3));
+        verify(req, Mockito.times(1)).getRequestDispatcher("posts.jsp");
     }
 }
