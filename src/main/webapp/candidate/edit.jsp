@@ -49,7 +49,7 @@
         <div class="card" style="width: 100%">
             <div class="card-header">
                 <% if (id == null) { %>
-                Новая вакансия.
+                Новый кандидат
                 <% } else { %>
                 Редактирование вакансии.
                 <% } %>
