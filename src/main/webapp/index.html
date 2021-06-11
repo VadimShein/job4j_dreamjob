@@ -10,13 +10,52 @@
 
     <script>
         function validate() {
+            const fields = {
+                validate: true,
+                name: null,
+                surname: null,
+                gender: null,
+                description: null
+            }
             let atr = $('.form-control')
             for (let node of atr) {
+                let value = node.value
+                let key = node.id
                 if (node.value === '') {
                     alert(node.getAttribute('title'));
+                    fields.validate = false
+                    break
                 }
+                fields[key] = value
             }
-            return false;
+            return fields;
+        }
+
+        function addRow() {
+            const fields = validate()
+            if (fields.validate) {
+                let name = fields.name
+                let surname = fields.surname
+                let gender = fields.gender
+                let desc = fields.description
+
+                let parent = document.querySelector('#table')
+                let tbody = parent.querySelector('tbody')
+                let row = document.createElement('tr')
+                let tName = document.createElement('td')
+                tName.innerHTML = `${name}`
+                let tSurname = document.createElement('td')
+                tSurname.innerHTML = `${surname}`
+                let tGender = document.createElement('td')
+                tGender.innerHTML = `${gender}`
+                let tDesc = document.createElement('td')
+                tDesc.innerHTML = `${desc}`
+                row.appendChild(tName)
+                row.appendChild(tSurname)
+                row.appendChild(tGender)
+                row.appendChild(tDesc)
+                tbody.appendChild(row)
+            }
         }
     </script>
 </head>
@@ -41,10 +80,10 @@
             <label for="description">Описание:</label>
             <input type="text" class="form-control" title="Enter description" id="description">
         </div>
-        <button type="submit" class="btn btn-default" onclick="return validate();">Submit</button>
+        <button type="reset" class="btn btn-default" onclick="return addRow();">Submit</button>
     </form>
     <br>
-    <table class="table table-bordered">
+    <table class="table table-bordered" id="table">
         <thead>
         <tr>
             <th>Имя</th>
@@ -53,8 +92,7 @@
             <th>Описание</th>
         </tr>
         </thead>
-        <tbody>
-        </tbody>
+        <tbody></tbody>
     </table>
 </div>
 </body>
