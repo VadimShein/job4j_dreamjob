@@ -16,12 +16,14 @@
             type: 'GET',
             crossDomain : true,
             url: 'http://localhost:8080/dreamjob/greet',
-            data: 'email=' + $('#exampleInputEmail1').val(),
+            data: {email : $('#exampleInputEmail1').val()},
             dataType: 'text'
         }).done(function(data) {
+            console.log(data)
+            let email = JSON.parse(data).email
             let parent = document.querySelector('.container')
             let entEmail = document.createElement('p')
-            entEmail.innerHTML = `${data}`
+            entEmail.innerHTML = `${'Entered email: ' + email}`
             parent.insertBefore(entEmail, parent.firstChild)
         }).fail(function(err){
             alert(err);
