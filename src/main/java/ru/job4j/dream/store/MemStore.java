@@ -60,6 +60,16 @@ public class MemStore implements Store {
         return null;
     }
 
+    @Override
+    public int findCityId(String city) {
+        return 0;
+    }
+
+    @Override
+    public Map<Integer, String> findCity() {
+        return null;
+    }
+
     public void save(Post post) {
         if (post.getId() == 0) {
             post.setId(postId.incrementAndGet());

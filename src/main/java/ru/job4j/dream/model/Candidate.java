@@ -8,6 +8,7 @@ public class Candidate {
     private String name;
     private String description;
     private Date created;
+    private int cityId;
     private boolean hasPhoto;
 
     public Candidate(int id, String name, String description, Date created) {
@@ -15,6 +16,13 @@ public class Candidate {
         this.name = name;
         this.description = description;
         this.created = created;
+    }
+    public Candidate(int id, String name, String description, Date created, int cityId) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.created = created;
+        this.cityId = cityId;
     }
 
     public int getId() {
@@ -49,6 +57,10 @@ public class Candidate {
         this.created = created;
     }
 
+    public int getCityId() {
+        return cityId;
+    }
+
     public boolean isHasPhoto() {
         return hasPhoto;
     }
@@ -56,7 +68,6 @@ public class Candidate {
     public void setHasPhoto(boolean value) {
         this.hasPhoto = value;
     }
-
 
     @Override
     public boolean equals(Object o) {

@@ -13,10 +13,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.sql.*;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class PsqlStore implements Store {
     private final BasicDataSource pool = new BasicDataSource();
@@ -80,7 +77,7 @@ public class PsqlStore implements Store {
             try (ResultSet it = ps.executeQuery()) {
                 while (it.next()) {
                     Candidate candidate = new Candidate(it.getInt("id"), it.getString("name"),
-                            it.getString("description"), it.getTimestamp("created"));
+                            it.getString("description"), it.getTimestamp("created"), it.getInt("cityId"));
                     File photo = new File("c:\\images\\" + candidate.getId() + ".JPG");
                     candidate.setHasPhoto(photo.exists());
                     candidates.add(candidate);
@@ -134,13 +131,14 @@ public class PsqlStore implements Store {
     private Candidate create(Candidate can) {
         try (Connection cn = pool.getConnection();
              PreparedStatement ps =  cn.prepareStatement(
-                     "INSERT INTO candidate(name, description, created) VALUES (?, ?, ?)",
+                     "INSERT INTO candidate(name, description, created, cityId) VALUES (?, ?, ?, ?)",
                      PreparedStatement.RETURN_GENERATED_KEYS)
         ) {
             ps.setString(1, can.getName());
             ps.setString(2, can.getDescription());
             ps.setTimestamp(3, Timestamp.valueOf(can.getCreated().toInstant()
                     .atZone(ZoneId.systemDefault()).toLocalDateTime()));
+            ps.setInt(4, can.getCityId());
             ps.execute();
             try (ResultSet id = ps.getGeneratedKeys()) {
                 if (id.next()) {
@@ -172,13 +170,14 @@ public class PsqlStore implements Store {
     private void update(Candidate can) {
         try (Connection cn = pool.getConnection();
              PreparedStatement ps = cn.prepareStatement(
-                     "UPDATE candidate set name=?, description=?, created=?  where id = ?")
+                     "UPDATE candidate set name=?, description=?, created=?, cityId=?  where id = ?")
         ) {
             ps.setString(1, can.getName());
             ps.setString(2, can.getDescription());
             ps.setTimestamp(3, Timestamp.valueOf(can.getCreated().toInstant()
                     .atZone(ZoneId.systemDefault()).toLocalDateTime()));
-            ps.setInt(4, can.getId());
+            ps.setInt(4, can.getCityId());
+            ps.setInt(5, can.getId());
             ps.executeUpdate();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -213,7 +212,10 @@ public class PsqlStore implements Store {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     can = new Candidate(rs.getInt("id"), rs.getString("name"),
-                            rs.getString("description"), rs.getTimestamp("created"));
+                            rs.getString("description"), rs.getTimestamp("created"),
+                            rs.getInt("cityId"));
+                    File photo = new File("c:\\images\\" + can.getId() + ".JPG");
+                    can.setHasPhoto(photo.exists());
                 }
             }
         } catch (Exception e) {
@@ -264,5 +266,60 @@ public class PsqlStore implements Store {
             LOG.error(e.getMessage(), e);
         }
         return user;
+    }
+
+    public Map<Integer, String> findCity() {
+        Map<Integer, String> cities = new HashMap<>();
+        try (Connection cn = pool.getConnection();
+             PreparedStatement ps = cn.prepareStatement(
+                     "SELECT * from cities")
+        ) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    cities.put(rs.getInt("id"), rs.getString("city"));
+                }
+            }
+        } catch (SQLException e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return cities;
+    }
+
+    public int findCityId(String city)  {
+        int cityId = 0;
+        try (Connection cn = pool.getConnection();
+             PreparedStatement ps = cn.prepareStatement(
+                     "SELECT * from cities where city=?")
+        ) {
+            ps.setString(1, city);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    cityId = rs.getInt("id");
+                } else {
+                    cityId = saveCity(city);
+                }
+            }
+        } catch (SQLException e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return cityId;
+    }
+
+    public int saveCity(String city) {
+        int cityId = 0;
+            try (Connection cn = pool.getConnection();
+                 PreparedStatement ps =  cn.prepareStatement(
+                         "INSERT INTO cities(city) VALUES (?)", Statement.RETURN_GENERATED_KEYS)) {
+                ps.setString(1, city);
+                ps.execute();
+                ResultSet generatedKeys = ps.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    cityId = generatedKeys.getInt(1);
+                }
+
+            } catch (SQLException e) {
+                LOG.error(e.getMessage(), e);
+            }
+        return cityId;
     }
 }

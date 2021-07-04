@@ -19,6 +19,20 @@
             integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
     <title>Работа мечты</title>
+    <script>
+        function validate() {
+            let rsl = true
+            let atr = $('.form-control')
+            for (let node of atr) {
+                if (node.value === '' || node.value === null) {
+                    alert(node.getAttribute('title'));
+                    rsl = false
+                    break
+                }
+            }
+            return rsl
+        }
+    </script>
 </head>
 <body>
 <div class="container pt-3">
@@ -37,17 +51,17 @@
                 <form action="<c:url value="reg.do"/>" method="post">
                     <div class="form-group">
                         <label>Имя</label>
-                        <input type="text" class="form-control" name="name" required>
+                        <input type="text" class="form-control" title="Enter name" name="name" required>
                     </div>
                     <div class="form-group">
                         <label>Почта</label>
-                        <input type="text" class="form-control" name="email" required>
+                        <input type="text" class="form-control" name="email" title="Enter email" required>
                     </div>
                     <div class="form-group">
                         <label>Пароль</label>
-                        <input type="text" class="form-control" name="password" required>
+                        <input type="text" class="form-control" name="password" title="Enter password" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                    <button type="submit" class="btn btn-primary" onclick="return validate()">Зарегистрироваться</button>
                 </form>
             </div>
         </div>

@@ -26,16 +26,20 @@ public class CandidateServlet extends HttpServlet {
         if ("delete".equals(req.getParameter("action"))) {
             if (req.getParameter("id") != null) {
                 int id = Integer.parseInt(req.getParameter("id"));
+                if (PsqlStore.instOf().findByIdCandidate(id).isHasPhoto()) {
+                    Files.delete(Paths.get("c:\\images\\" + id + ".JPG"));
+                }
                 PsqlStore.instOf().deleteCandidate(id);
-                Files.delete(Paths.get("c:\\images\\" + id + ".JPG"));
             }
         } else {
+            int cityId = PsqlStore.instOf().findCityId(req.getParameter("city"));
             PsqlStore.instOf().save(
                     new Candidate(
                             Integer.parseInt(req.getParameter("id")),
                             req.getParameter("name"),
                             req.getParameter("description"),
-                            new Date()
+                            new Date(),
+                            cityId
                     )
             );
         }

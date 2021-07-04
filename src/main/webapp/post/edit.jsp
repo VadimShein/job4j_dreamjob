@@ -21,6 +21,20 @@
             integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
     <title>Работа мечты</title>
+    <script>
+        function validate() {
+            let rsl = true
+            let atr = $('.form-control')
+            for (let node of atr) {
+                if (node.value === '' || node.value === null) {
+                    alert(node.getAttribute('title'));
+                    rsl = false
+                    break
+                }
+            }
+            return rsl
+        }
+    </script>
 </head>
 <body>
 <%
@@ -49,24 +63,20 @@
         <div class="card" style="width: 100%">
             <div class="card-header">
                 <% if (id == null) { %>
-                Новая вакансия.
+                Новая вакансия
                 <% } else { %>
-                Редактирование вакансии.
+                Редактирование вакансии
                 <% } %>
             </div>
             <div class="card-body">
                 <form action="<%=request.getContextPath()%>/posts.do?id=<%=post.getId()%>" method="post">
                     <div class="form-group">
                         <label>Имя</label>
-                        <label>
-                            <input type="text" class="form-control" name="name" value="<%=post.getName()%>">
-                        </label>
+                            <input type="text" class="form-control" name="name" title="Enter name" value="<%=post.getName()%>">
                         <label>Описание</label>
-                        <label>
-                            <input type="text" class="form-control" name="description" value="<%=post.getDescription()%>">
-                        </label>
+                            <input type="text" class="form-control" name="description" title="Enter description" value="<%=post.getDescription()%>">
                     </div>
-                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <button type="submit" class="btn btn-primary" onclick="return validate()">Сохранить</button>
                 </form>
             </div>
         </div>

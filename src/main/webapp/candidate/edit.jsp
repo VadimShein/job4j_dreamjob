@@ -5,6 +5,7 @@
 <%@ page import="ru.job4j.dream.store.PsqlStore" %>
 <!doctype html>
 <html lang="en">
+
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -19,10 +20,23 @@
             integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
             integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
     <title>Работа мечты</title>
+
+    <style>
+    input.form-control {
+        display: inline-block;
+        width:90%;
+    }
+    select.cityList {
+        height:38px;
+        width:20px;
+    }
+    </style>
 </head>
-<body>
+
+<body onload="getCity()">
 <%
     String id = request.getParameter("id");
     Candidate can = new Candidate(0, "", "", new Date());
@@ -57,20 +71,63 @@
             <div class="card-body">
                 <form action="<%=request.getContextPath()%>/candidates.do?id=<%=can.getId()%>" method="post">
                     <div class="form-group">
-                        <label>Имя</label>
-                        <label>
-                            <input type="text" class="form-control" name="name" value="<%=can.getName()%>">
-                        </label>
-                        <label>Описание</label>
-                        <label>
-                            <input type="text" class="form-control" name="description" value="<%=can.getDescription()%>">
-                        </label>
+                        <div>
+                            <label>Имя</label><br>
+                            <input type="text" class="form-control" name="name" title="Enter name" value="<%=can.getName()%>">
+                        </div>
+                        <div>
+                            <label>Описание</label><br>
+                            <input type="text" class="form-control" name="description" title="Enter description" value="<%=can.getDescription()%>">
+                        </div>
+                        <div>
+                            <label>Город</label><br>
+                            <input id="city" list="cityList" type="text" class="form-control" name="city"  title="Enter city">
+                            <select id="cityList" class="cityList" onchange="document.querySelector('#city').value=value">
+                                <option selected disabled hidden>-</option>
+                            </select>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <button type="submit" class="btn btn-primary" onclick="return validate()">Сохранить</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+<script>
+    function validate() {
+        let rsl = true
+        let atr = $('.form-control')
+        for (let node of atr) {
+            if (node.value === '' || node.value === null) {
+                alert(node.getAttribute('title'));
+                rsl = false
+                break
+            }
+        }
+        return rsl
+    }
+
+    function getCity() {
+        $.ajax({
+            type: 'GET',
+            crossDomain : true,
+            url: 'http://localhost:8080/dreamjob/city',
+            dataType: 'text',
+        }).done(function(data) {
+            let dt = JSON.parse(data)
+            for (const [key, value] of Object.entries(dt)) {
+                if (key === "<%=can.getCityId()%>") {
+                    document.querySelector('#city').value = value
+                }
+                let parent = document.querySelector('#cityList')
+                let el = document.createElement('option')
+                el.innerHTML = `${value}`
+                parent.appendChild(el)
+            }
+        }).fail(function(err) {
+            alert(err);
+        });
+    }
+</script>
 </body>
 </html>
