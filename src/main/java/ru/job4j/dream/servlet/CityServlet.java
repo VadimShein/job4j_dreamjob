@@ -18,7 +18,6 @@ public class CityServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/plain");
         resp.setCharacterEncoding("UTF-8");
-        resp.setHeader("Access-Control-Allow-Origin", "*");
         Map<Integer, String> cities = PsqlStore.instOf().findCity();
 
         JSONObject jsonObj = new JSONObject();
